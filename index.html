@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Homepage</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #e0f7c1;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column; /* Added */
+        align-items: center; /* Added */
+      }
+
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+        column-gap: 20px; /* Space between cards on the same row */
+      }
+
+      .card {
+        background-color: #f0f5e9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 20px;
+        box-sizing: border-box; /* Ensure padding is included in width */
+        cursor: pointer;
+      }
+
+      .card h2 {
+        margin-top: 0;
+      }
+
+      .card p {
+        margin-bottom: 0;
+      }
+
+      .card img {
+        max-width: 100%;
+        height: auto;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+
+      .card-content {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .card.active .card-content {
+        display: block;
+      }
+      #subscribeBtn {
+        padding: 10px 20px;
+        background-color: #088b2f;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+        align-self: center;
+      }
+
+      #subscribeBtn:hover {
+        background-color: #058c58;
+      }
+
+      #subscribeBtn span {
+        position: relative;
+      }
+
+      #subscribeBtn::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        background-color: #fff;
+        bottom: 0;
+        left: 0;
+        transition: width 0.3s;
+      }
+
+      #subscribeBtn:hover::after {
+        width: 1000%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="cardContainer">
+      <!-- Card container will be populated dynamically -->
+    </div>
+
+    <script type="module">
+      // Import Firebase modules
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCyGr-snvaZbyq5RqUOjOqEX75DAuvCOv8",
+        authDomain: "agrilearn-32be3.firebaseapp.com",
+        databaseURL: "https://agrilearn-32be3-default-rtdb.firebaseio.com",
+        projectId: "agrilearn-32be3",
+        storageBucket: "agrilearn-32be3.appspot.com",
+        messagingSenderId: "615696635566",
+        appId: "1:615696635566:web:318ef141f1da30fc343f3f",
+        measurementId: "G-KLFQVTYL4T",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getDatabase();
+
+      // Reference to the card container
+      const cardContainer = document.getElementById("cardContainer");
+
+      // Fetch course data from Firebase and populate cards
+      onValue(ref(db, "courses"), (snapshot) => {
+        const courses = snapshot.val();
+        cardContainer.innerHTML = ""; // Clear previous content
+
+        // Populate cards dynamically
+        for (const courseId in courses) {
+          const course = courses[courseId];
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.innerHTML = `
+          <img src="${course.imageLink}" alt="${course.courseName}" />
+          <h2>${course.courseName}</h2>
+          <p>${course.courseDescription}</p>
+          <div class="card-content">
+            <p><strong>Course ID:</strong> ${course.courseId}</p>
+            <p><strong>Course Content:</strong> ${course.courseContent}</p>
+          </div>
+        `;
+          cardContainer.appendChild(card);
+
+          // Add event listener to navigate to another webpage with full information
+          card.addEventListener("click", function () {
+            window.location.href = `full_info.html?courseId=${courseId}`;
+          });
+        }
+      });
+    </script>
+
+    <div class="container">
+      <a
+        href="https://shemaprince123.github.io/paystack.github.io/"
+        id="subscribeBtn"
+        ><span>Subscribe</span></a
+      >
+    </div>
+  </body>
+</html>

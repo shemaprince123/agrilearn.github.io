@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Information</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #e0f7c1; /* light green background */
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f0f5e9; /* green card background */
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        color: #000000; /* white text color */
+      }
+
+      h1 {
+        margin-top: 0;
+        color: #060101; /* white heading color */
+      }
+
+      p {
+        margin-bottom: 10px;
+      }
+
+      /* Style for the submit button */
+      #submitBtn {
+        padding: 10px 20px;
+        background-color: #4caf50; /* green button background */
+        color: #ffffff; /* white button text color */
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        align-self: center;
+      }
+
+      /* Hover effect for the submit button */
+      #submitBtn:hover {
+        background-color: #45a049; /* darker green on hover */
+      }
+
+      /* Style for the quiz questions */
+      strong {
+        color: #000000; /* white color for strong text */
+      }
+
+      label {
+        color: #000000; /* white color for labels */
+      }
+
+      input[type="radio"] {
+        margin-right: 10px;
+      }
+
+      /* Style for the quiz results */
+      #quizResults {
+        margin-top: 20px;
+        color: #080505; /* white color for quiz results */
+      }
+
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Course Information</h1>
+      <div id="courseDetails"></div>
+    </div>
+
+    <div class="container">
+      <h2>Test Your Knowledge</h2>
+      <p>Here are some questions to test what you've learned:</p>
+      <!-- <ol>
+        <li>What is the main topic of this course?</li>
+        <li>What are the key concepts covered in this course?</li>
+        <li>
+          How can you apply the knowledge gained from this course in real life?
+        </li>
+      </ol> -->
+
+      <form id="quizForm">
+        <p>
+          <strong
+            >Question 1: What is a key principle emphasized in the discussed
+            content on sustainable farming practices?</strong
+          >
+        </p>
+        <label
+          ><input type="radio" name="q1" value="a" /> Option A: Maximizing
+          short-term profits</label
+        ><br />
+        <label
+          ><input type="radio" name="q1" value="b" /> Option B: Minimizing
+          environmental impacts</label
+        ><br />
+        <label
+          ><input type="radio" name="q1" value="c" /> Option C: Ignoring animal
+          welfare concerns</label
+        ><br />
+
+        <p>
+          <strong
+            >Question 2: Which technique is highlighted as essential for
+            sustainable crop management in the provided chapters?</strong
+          >
+        </p>
+        <label
+          ><input type="radio" name="q2" value="a" /> Option A: Heavy reliance
+          on synthetic pesticides</label
+        ><br />
+        <label
+          ><input type="radio" name="q2" value="b" /> Option B: Mono-cropping
+          without rotation </label
+        ><br />
+        <label
+          ><input type="radio" name="q2" value="c" /> Option C: Utilizing crop
+          rotation and diversification</label
+        ><br />
+
+        <p>
+          <strong
+            >Question 3: Which aspect is emphasized as crucial for sustainable
+            livestock management?</strong
+          >
+        </p>
+        <label
+          ><input type="radio" name="q3" value="a" /> Option A: Overgrazing and
+          ignoring pasture management</label
+        ><br />
+        <label
+          ><input type="radio" name="q3" value="b" /> Option B: Prioritizing
+          short-term gains over long-term viability</label
+        ><br />
+        <label
+          ><input type="radio" name="q3" value="c" /> Option C: Balancing animal
+          welfare, environmental stewardship, and economic viability</label
+        ><br /><br /><br />
+
+        <!-- Modified submit button with id "submitBtn" -->
+        <button type="submit" id="submitBtn">Submit</button>
+      </form>
+
+      <div id="quizResults"></div>
+    </div>
+
+    <script type="module">
+      // Import Firebase modules
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCyGr-snvaZbyq5RqUOjOqEX75DAuvCOv8",
+        authDomain: "agrilearn-32be3.firebaseapp.com",
+        databaseURL: "https://agrilearn-32be3-default-rtdb.firebaseio.com",
+        projectId: "agrilearn-32be3",
+        storageBucket: "agrilearn-32be3.appspot.com",
+        messagingSenderId: "615696635566",
+        appId: "1:615696635566:web:318ef141f1da30fc343f3f",
+        measurementId: "G-KLFQVTYL4T",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getDatabase();
+
+      // Function to get query parameter value from URL
+      function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+      }
+
+      // Get the course ID from the URL query parameter
+      const courseId = getQueryParam("courseId");
+
+      if (courseId) {
+        // Reference
+        // Reference to the course details in Firebase
+        const courseRef = ref(db, `courses/${courseId}`);
+
+        // Fetch course details from Firebase
+        onValue(courseRef, (snapshot) => {
+          const course = snapshot.val();
+          if (course) {
+            const courseDetailsElement =
+              document.getElementById("courseDetails");
+            courseDetailsElement.innerHTML = `
+          <p><strong>Course Name:</strong> ${course.courseName}</p>
+          <p><strong>Course Description:</strong> ${course.courseDescription}</p>
+          <p><strong>Course Content:</strong> ${course.courseContent}</p>
+        `;
+          } else {
+            // Course not found
+            document.getElementById("courseDetails").innerHTML =
+              "<p>Course not found.</p>";
+          }
+        });
+      } else {
+        // No course ID provided in the URL
+        document.getElementById("courseDetails").innerHTML =
+          "<p>No course ID provided.</p>";
+      }
+
+      // Quiz form submission
+      document
+        .getElementById("quizForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          // Get selected answers
+          const q1 = document.querySelector('input[name="q1"]:checked');
+          const q2 = document.querySelector('input[name="q2"]:checked');
+          const q3 = document.querySelector('input[name="q3"]:checked');
+
+          // Check if all questions are answered
+          if (q1 && q2 && q3) {
+            // Calculate score
+            let score = 0;
+            if (q1.value === "b") score++;
+            if (q2.value === "a") score++;
+            if (q3.value === "c") score++;
+
+            // Display results
+            const quizResultsElement = document.getElementById("quizResults");
+            quizResultsElement.innerHTML = `
+          <p><strong>Your score:</strong> ${score} out of 3</p>
+          <h3>Answers:</h3>
+          <ul>
+            <li><strong>Question 1:</strong> Option B</li>
+            <li><strong>Question 2:</strong> Option A</li>
+            <li><strong>Question 3:</strong> Option C</li>
+          </ul>
+        `;
+          } else {
+            // Not all questions are answered
+            const quizResultsElement = document.getElementById("quizResults");
+            quizResultsElement.innerHTML =
+              "<p>Please answer all questions.</p>";
+          }
+        });
+
+      // Reset form
+      // function resetQuiz() {
+      //   const quizForm = document.getElementById("quizForm");
+      //   // Reset form fields
+      //   quizForm.reset();
+      //   // Clear quiz results
+      //   document.getElementById("quizResults").innerHTML = "";
+      // }
+    </script>
+  </body>
+</html>
